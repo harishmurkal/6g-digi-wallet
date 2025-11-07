@@ -1,0 +1,61 @@
+@startuml
+title Telecom Verifiable Credential (VC) and Presentation (VP) Flow
+
+actor Subscriber as H
+participant "Telco Operator\n(Issuer)\n did:telco:airtel" as I
+participant "Subscriber Wallet\n(Holder)\n did:telco:harism" as W
+participant "Service Verifier\n(Verifier)\n did_telco_verifier" as V
+
+== DID Registration ==
+H -> I : Request new DID for SIM/Subscriber
+I -> I : Generate DID Document\n(method = telco, keyType = Ed25519)
+I --> H : Return DID (did:telco:harism)
+
+note right of H
+DID = Decentralized Identifier.
+Represents the subscriber identity
+bound to their cryptographic key.
+end note
+
+== VC Issuance ==
+I -> I : Create Verifiable Credential (VC)\nfor Subscriber
+I -> W : Issue VC containing claims:\n- name = Harish M\n- operator = Airtel\n- circle = Karnataka\n- ageOver18 = true\n- location = Bengaluru, IN
+note right of W
+VC includes:
+subject = did:telco:harism
+issuer = did:telco:airtel
+end note
+W -> W : Store VC securely in wallet
+
+== VP Creation ==
+V -> H : Send Authentication Request\n(contains nonce + domain = did_telco_verifier)
+H -> W : Request to create VP\n(reveal: name, operator, circle, location)
+W -> W : Build VP
+
+note right of W
+VP includes:
+- holder DID = did:telco:harism
+- verifier DID = did_telco_verifier
+- verifiable credentials (referenced)
+- nonce for freshness
+- proof signed by holder
+end note
+
+W --> V : Send Verifiable Presentation (VP)
+
+== VP Verification ==
+V -> V : Verify VP proof
+V -> I : Resolve issuer DID and verify credential signature
+I --> V : Return verification status
+V --> H : Result = Verified ✅
+
+== Summary ==
+note over I, V
+DID Issuer: did:telco:airtel
+Holder: did:telco:harism
+Verifier: did_telco_verifier
+VC → issued by Operator
+VP → created by Subscriber for Verifier
+end note
+
+@enduml

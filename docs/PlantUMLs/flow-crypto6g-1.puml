@@ -1,0 +1,46 @@
+@startuml
+title Telecom Verifiable Credential (VC) & Presentation (VP) Flow — Step 4 (Working Base)
+
+actor Subscriber as H
+participant "Telco Operator\n(Issuer)\n did:telco:airtel" as I
+participant "Subscriber Wallet\n(Holder)\n did:telco:harishm" as W
+participant "Service Verifier\n(Verifier)\n did:telco:verifier" as V
+
+== DID Registration & Key Generation ==
+H -> I : Request new DID for SIM/Subscriber
+I -> I : Generate Ed25519 Key Pair (PublicKey, PrivateKey)
+I -> I : Store PrivateKey securely (key = privatekey:did:telco:airtel#key-1)
+I -> I : Construct DID Document
+I --> H : Return DID (did:telco:harishm)
+
+note right of I
+DID Document Example
+--------------------
+@context: https://www.w3.org/ns/did/v1
+id: did:telco:airtel
+publicKey:
+  id: did:telco:airtel#key-1
+  type: Ed25519VerificationKey2018
+  controller: did:telco:airtel
+  publicKeyJwk.x: <base64url(pubkey)>
+end note
+
+== VC Issuance ==
+I -> I : Construct Verifiable Credential (VC)
+I -> I : Sign VC using Issuer PrivateKey
+I --> W : Deliver signed VC
+W -> W : Store VC securely in wallet (encrypted)
+
+== VP Creation ==
+V -> H : Authentication Request (nonce + domain)
+H -> W : Request to create Verifiable Presentation (VP)
+W -> W : Build VP and sign with Holder PrivateKey
+W --> V : Send signed Verifiable Presentation (VP)
+
+== VP Verification ==
+V -> V : Verify Holder's Proof using Holder Public Key
+V -> I : Resolve Issuer DID and verify VC signature
+I --> V : Return verification success/failure
+V --> H : Result = Verified
+
+@enduml

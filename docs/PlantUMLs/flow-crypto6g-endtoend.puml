@@ -1,0 +1,49 @@
+@startuml
+title Telecom DID -> VC -> VP : End-to-End Trust Chain
+
+actor Subscriber as H
+participant "Telco Operator (Issuer)\n did:telco:airtel" as I
+participant "Subscriber Wallet (Holder)\n did:telco:harishm" as W
+participant "Service Verifier\n did:telco:verifier" as V
+
+== DID Registration ==
+H -> I : Request new DID for subscriber
+I -> I : Generate Ed25519 key pair (public, private)
+I -> I : Publish DID Document with public key
+I --> H : Return DID (did:telco:harishm)
+
+note right of I
+DID Document contains:
+  id = did:telco:airtel
+  publicKey id = did:telco:airtel#key-1
+end note
+
+== VC Issuance ==
+I -> I : Build Verifiable Credential (VC) for subject
+I -> I : Sign VC with issuer private key
+I --> W : Deliver signed VC to wallet
+W -> W : Store VC in wallet
+
+note right of W
+VC key fields:
+  id, issuer, issuanceDate, credentialSubject, proof
+end note
+
+== VP Creation ==
+V -> H : Send authentication request (nonce + domain)
+H -> W : Ask wallet to create Verifiable Presentation (reveal selected fields)
+W -> W : Build VP and sign with holder private key
+W --> V : Send signed VP
+
+note right of W
+VP key fields:
+  holder, verifiableCredential, proof (nonce, domain)
+end note
+
+== VP Verification ==
+V -> V : Verify VP proof (resolve holder DID)
+V -> I : Resolve issuer DID and verify VC signature
+I --> V : Return issuer verification result
+V --> H : Return verification result
+
+@enduml

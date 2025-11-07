@@ -1,0 +1,29 @@
+{
+  "issuerDID": "did:telco:airtel",
+  "subjectDID": "did:telco:harism",
+  "credentialType": ["VerifiableCredential", "MobileSubscriberCredential"],
+  "claims": {
+    "name": "Harish M",
+    "dob": "1992-04-21",
+    "nationality": "IN",
+    "licenseNumber": "KA05-1234567",
+    "ageOver18": true,
+    "msisdn": "+919876543210",
+    "imsi": "404990123456789",
+    "operator": "Airtel",
+    "circle": "Karnataka",
+    "servicePlan": "5G Premium",
+    "lastKnownLocation": {
+      "cellId": "Cell-5678",
+      "latitude": 12.9716,
+      "longitude": 77.5946,
+      "timestamp": "2025-10-30T11:55:00Z"
+    }
+  },
+  "validityDays": 365,
+  "options": {
+    "keyType": "Ed25519",
+    "controller": "did:telco:airtel",
+    "id": "uuid8"
+  }
+}

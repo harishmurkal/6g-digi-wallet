@@ -1,0 +1,122 @@
+@startuml
+title Telecom DID, VC & VP Flow — Complete Step 5 (keys, DID, VC, VP, verification)
+
+actor Subscriber as H
+participant "Telco Operator\n(Issuer)\n did:telco:airtel" as I
+participant "Subscriber Wallet\n(Holder)\n did:telco:harishm" as W
+participant "Service Verifier\n(Verifier)\n did:telco:verifier" as V
+
+== DID Registration & Key Generation ==
+H -> I : Request new DID for Subscriber
+I -> I : Generate Ed25519 key pair (publicKey, privateKey)
+I -> I : Store privateKey securely (store key = privatekey:did:telco:airtel#key-1)
+I -> I : Construct public DID Document (embed publicKey JWK)
+I --> H : Return DID (did:telco:harishm)
+
+note right of I
+DID Document (public)
+---------------------
+context = https://www.w3.org/ns/did/v1
+id = did:telco:airtel
+publicKey entry:
+  id = did:telco:airtel#key-1
+  type = Ed25519VerificationKey2018
+  controller = did:telco:airtel
+  publicKeyJwk.x = [base64url(pubkey)]
+authentication = [did:telco:airtel#key-1]
+end note
+
+== VC Issuance ==
+I -> I : Construct Verifiable Credential (VC) for subject did:telco:harishm
+I -> I : Canonicalize VC (remove proof) and sign using issuer privateKey
+I --> W : Deliver signed VC to Wallet (VC contains proof with JWS)
+W -> W : Store VC securely in wallet (optionally encrypted)
+
+note right of I
+Verifiable Credential (VC) - important fields
+---------------------------------------------
+context = https://www.w3.org/2018/credentials/v1
+id = did:telco:airtel:vc:[uuid]
+type = [ "VerifiableCredential", "SubscriberCredential" ]
+issuer = did:telco:airtel
+issuanceDate = 2025-11-07T10:00:00Z
+expirationDate = 2026-11-07T10:00:00Z
+credentialSubject:
+  id = did:telco:harishm
+  name = "Harish M"
+  operator = "Airtel"
+  circle = "Karnataka"
+  ageOver18 = true
+  msisdn = "[masked:+91xxxxxx210]"
+  imsi = "[masked:40499xxxxxxxxx]"
+  lastKnownLocation:
+    cellId = "Cell-5678"
+    latitude = 12.9716
+    longitude = 77.5946
+    timestamp = 2025-11-07T09:55:00Z
+proof:
+  type = JsonWebSignature2020
+  created = 2025-11-07T10:00:00Z
+  proofPurpose = assertionMethod
+  verificationMethod = did:telco:airtel#key-1
+  jws = [base64url(jws-signature)]
+end note
+
+== VP Creation (selective reveal) ==
+V -> H : Send Auth Request (nonce + domain = did:telco:verifier)
+H -> W : Request to create VP: reveal [name, operator, circle, lastKnownLocation]
+W -> W : Build VP: include selected fields from VC
+W -> W : Canonicalize VP and sign with holder privateKey
+W --> V : Send Verifiable Presentation (VP) with holder proof
+
+note right of W
+Verifiable Presentation (VP) - important fields
+-----------------------------------------------
+context = https://www.w3.org/2018/credentials/v1
+type = [ "VerifiablePresentation" ]
+verifiableCredential = [ <VC or reference with revealed fields> ]
+holder = did:telco:harishm
+proof:
+  type = JsonWebSignature2020
+  created = 2025-11-07T10:05:00Z
+  proofPurpose = authentication
+  verificationMethod = did:telco:harishm#key-1
+  domain = did:telco:verifier
+  nonce = [random_nonce]
+  jws = [base64url(holder-signature)]
+end note
+
+== VP & VC Verification ==
+V -> V : Verify VP proof (resolve holder DID -> get holder publicKey)
+V -> I : Resolve issuer DID (did:telco:airtel) to obtain issuer publicKey
+V -> V : Verify VC proof using issuer publicKey
+V -> V : Verify that VP holder proof matches holder publicKey and nonce/domain
+V --> H : Return verification result (Verified or Rejected)
+I --> V : (optional) return issuer-side additional checks / revocation status
+
+note right of V
+Verification steps (high-level)
+-------------------------------
+1) Resolve holder DID -> obtain publicKey JWK.
+2) Verify holder JWS over VP canonical payload + nonce/domain.
+3) For each embedded/referenced VC:
+   a) Resolve issuer DID -> get issuer publicKey JWK.
+   b) Verify VC JWS over VC canonical payload.
+   c) Check expiration and revocation (if supported).
+4) Ensure revealed claims match requested reveal set.
+end note
+
+== Optional: Key & Storage bookkeeping ==
+I -> I : Save public DID Document at key = did:did:telco:airtel (or registry)
+I -> I : Save privateKey under key = privatekey:did:telco:airtel#key-1
+W -> W : Wallet stores holder privateKey under key = privatekey:did:telco:harishm#key-1
+
+note right of I
+Storage keys used (examples)
+- did:<did>            --> public DID document
+- privatekey:<did>#k  --> encrypted raw private key bytes
+- vc:<vc-id>          --> persisted VC JSON
+- vp:<nonce>          --> optional persisted VP
+end note
+
+@enduml

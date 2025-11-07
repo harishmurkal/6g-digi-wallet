@@ -1,0 +1,61 @@
+{
+    "@context":  [
+                     "https://www.w3.org/2018/credentials/v1"
+                 ],
+    "type":  [
+                 "VerifiablePresentation"
+             ],
+    "verifiableCredential":  [
+                                 {
+                                     "@context":  [
+                                                      "https://www.w3.org/2018/credentials/v1"
+                                                  ],
+                                     "id":  "vc:did:telco:harism:uuid8",
+                                     "type":  [
+                                                  "VerifiableCredential",
+                                                  "VerifiableCredential",
+                                                  "MobileSubscriberCredential"
+                                              ],
+                                     "issuer":  "did:telco:airtel",
+                                     "issuanceDate":  "2025-11-07T06:50:12.9045217Z",
+                                     "expirationDate":  "2026-11-07T06:50:12.9045217Z",
+                                     "credentialSubject":  {
+                                                               "claims":  {
+                                                                              "ageOver18":  true,
+                                                                              "circle":  "Karnataka",
+                                                                              "dob":  "1992-04-21",
+                                                                              "imsi":  "404990123456789",
+                                                                              "lastKnownLocation":  {
+                                                                                                        "cellId":  "Cell-5678",
+                                                                                                        "latitude":  12.9716,
+                                                                                                        "longitude":  77.5946,
+                                                                                                        "timestamp":  "2025-10-30T11:55:00Z"
+                                                                                                    },
+                                                                              "licenseNumber":  "KA05-1234567",
+                                                                              "msisdn":  "+919876543210",
+                                                                              "name":  "Harish M",
+                                                                              "nationality":  "IN",
+                                                                              "operator":  "Airtel",
+                                                                              "servicePlan":  "5G Premium"
+                                                                          },
+                                                               "id":  "did:telco:harism"
+                                                           },
+                                     "proof":  {
+                                                   "type":  "Ed25519Signature2020",
+                                                   "created":  "2025-11-07T06:50:12.9045217Z",
+                                                   "proofPurpose":  "assertionMethod",
+                                                   "verificationMethod":  "did:telco:airtel#key-1",
+                                                   "jws":  "olmrqD7RZ6IU16Ka29Q-rgDF3G34nDW8FVVSK8d0INFSsHw7V1yobmeJkf6lO66beydBIuJrwulojKdsVuPwDg"
+                                               }
+                                 }
+                             ],
+    "proof":  {
+                  "type":  "Ed25519Signature2018",
+                  "created":  "2025-11-07T06:50:14.0644905Z",
+                  "proofPurpose":  "authentication",
+                  "verificationMethod":  "did:example:wallet#key-1",
+                  "signatureValue":  "stub-signature"
+              },
+    "nonce":  "nonce-telecom-auth-002",
+    "created":  "2025-11-07T12:20:14.0644905+05:30"
+}

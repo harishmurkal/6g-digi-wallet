@@ -1,0 +1,93 @@
+@startuml
+title Telecom Verifiable Credential (VC) and Presentation (VP) Flow
+
+actor Subscriber as H
+participant "Telco Operator\n(Issuer)\n did:telco:airtel" as I
+participant "Subscriber Wallet\n(Holder)\n did:telco:harishm" as W
+participant "Service Verifier\n(Verifier)\n did:telco:verifier" as V
+
+== DID Registration & Key Setup (Issuer & Holder) ==
+H -> I : Request new DID for SIM/Subscriber
+I -> I : Generate Ed25519 Key Pair (Public/Private)
+I -> I : Store PrivateKey securely (Key = "privatekey:did:telco:airtel#key-1")
+I -> I : Construct & Publish DID Document
+
+note right of I
+**DID Document (Public Record)**
+id: did:telco:airtel
+publicKey:
+  - id: did:telco:airtel#key-1
+    type: Ed25519VerificationKey2018
+    publicKeyJwk: <base64url(pubkey)>
+end note
+
+I --> W : Return new DID (did:telco:harishm)
+W -> W : Store Holder's Private Key securely
+
+== VC Issuance (Issuer to Holder) ==
+I -> I : Create Verifiable Credential (VC)
+I -> I : Canonicalize VC Payload
+I -> I : Sign VC using Issuer's Private Key (did:telco:airtel#key-1)
+
+note right of I
+**Verifiable Credential (VC)**
+issuer: did:telco:airtel
+credentialSubject:
+  id: did:telco:harishm
+  name: Harish M
+  operator: Airtel
+  circle: Karnataka
+proof:
+  proofPurpose: assertionMethod
+  verificationMethod: did:telco:airtel#key-1
+  jws: <Issuer-Signature>
+end note
+
+I --> W : Deliver signed VC
+W -> W : Store VC securely in wallet (encrypted with Holder's key)
+
+== VP Creation (Holder to Verifier) ==
+V -> W : Authentication Request (Contains nonce + domain=did:telco:verifier)
+W -> W : Select relevant VCs (e.g. SubscriberCredential)
+W -> W : Build VP (include selected VCs/Disclosed Claims)
+W -> W : Canonicalize VP Payload
+W -> W : Sign VP using Holder's Private Key (did:telco:harishm#key-1)
+
+note right of W
+**Verifiable Presentation (VP)**
+holder: did:telco:harishm
+verifiableCredential: [VC list or Disclosed Credentials]
+proof:
+  proofPurpose: authentication
+  verificationMethod: did:telco:harishm#key-1
+  domain: did:telco:verifier
+  nonce: <random nonce>
+  jws: <Holder-Signature>
+end note
+
+W --> V : Send signed Verifiable Presentation (VP)
+
+== VP Verification (Verifier's Checks) ==
+V -> V : 1. Verify Holder's Proof (VP Signature)
+V -> I : Resolve Holder's DID (did:telco:harishm) to get Public Key
+I --> V : Return Public Key
+V -> V : Use Holder's Public Key to check VP signature (proofPurpose: authentication)
+
+alt VP Signature Valid
+    V -> V : 2. Verify Issuer's Proof (VC Signature)
+    V -> I : Resolve Issuer's DID (did:telco:airtel) to get Public Key
+    I --> V : Return Public Key
+    V -> V : Use Issuer's Public Key to check VC signature (proofPurpose: assertionMethod)
+    V -> V : Check VC Expiration and Revocation Status
+else VP Signature Invalid
+    V --> H : Result = Verification Failed
+    stop
+end
+
+alt VC Verified and Policy Met
+    V --> H : Result = Verified (Access Granted)
+else VC Invalid or Policy Not Met
+    V --> H : Result = Verification Failed (Access Denied)
+end
+
+@enduml

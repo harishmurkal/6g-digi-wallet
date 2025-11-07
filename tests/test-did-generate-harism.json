@@ -1,0 +1,8 @@
+{
+  "method": "telco",
+  "options": {
+    "keyType": "Ed25519",
+    "controller": "did:telco:harism",
+    "id": "harism"
+  }
+}

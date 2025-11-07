@@ -1,0 +1,42 @@
+{
+    "@context":  [
+                     "https://www.w3.org/2018/credentials/v1"
+                 ],
+    "id":  "vc:did:telco:harism:uuid8",
+    "type":  [
+                 "VerifiableCredential",
+                 "VerifiableCredential",
+                 "MobileSubscriberCredential"
+             ],
+    "issuer":  "did:telco:airtel",
+    "issuanceDate":  "2025-11-06T18:47:01.49124Z",
+    "expirationDate":  "2026-11-06T18:47:01.49124Z",
+    "credentialSubject":  {
+                              "claims":  {
+                                             "ageOver18":  true,
+                                             "circle":  "Karnataka",
+                                             "dob":  "1992-04-21",
+                                             "imsi":  "404990123456789",
+                                             "lastKnownLocation":  {
+                                                                       "cellId":  "Cell-5678",
+                                                                       "latitude":  12.9716,
+                                                                       "longitude":  77.5946,
+                                                                       "timestamp":  "2025-10-30T11:55:00Z"
+                                                                   },
+                                             "licenseNumber":  "KA05-1234567",
+                                             "msisdn":  "+919876543210",
+                                             "name":  "Harish M",
+                                             "nationality":  "IN",
+                                             "operator":  "Airtel",
+                                             "servicePlan":  "5G Premium"
+                                         },
+                              "id":  "did:telco:harism"
+                          },
+    "proof":  {
+                  "type":  "Ed25519Signature2020",
+                  "created":  "2025-11-06T18:47:01.49124Z",
+                  "proofPurpose":  "assertionMethod",
+                  "verificationMethod":  "did:telco:airtel#key-1",
+                  "jws":  "2oLAb4S8lK2w57D0eun7H7x5Qz6TYQdwW7B9BU6_HJpiDewoBoCARCYpZNTjE2cc9canARraLq2eQOIr1JS3DA"
+              }
+}

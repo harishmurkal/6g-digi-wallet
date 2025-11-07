@@ -1,0 +1,95 @@
+@startuml
+title Telecom DID / VC / VP — Cryptographic Summary
+
+skinparam note {
+  BackgroundColor #f9f9f9
+  BorderColor #555555
+  FontSize 12
+}
+
+actor "Subscriber (Holder)\n did:telco:harishm" as H
+participant "Telco Operator (Issuer)\n did:telco:airtel" as I
+participant "Service Verifier (Verifier)\n did:telco:verifier" as V
+
+== Cryptographic Responsibilities ==
+
+note over I
+Issuer (Telco Operator)
+-----------------------
+• Generates Ed25519 key pair  
+• Publishes public key in DID Document  
+• Signs Verifiable Credential (VC)  
+• Maintains secure private key storage  
+end note
+
+note over H
+Holder (Subscriber Wallet)
+--------------------------
+• Manages own Ed25519 key pair  
+• Receives signed VC from Issuer  
+• Builds Verifiable Presentation (VP)  
+• Signs VP with private key  
+• Reveals only selective claims  
+end note
+
+note over V
+Verifier (Service)
+------------------
+• Resolves DID Documents  
+• Fetches Issuer/Holder public keys  
+• Verifies VC & VP signatures  
+• Confirms nonce + domain binding  
+end note
+
+== Example Structures ==
+
+note over I
+DID Document (Issuer)
+---------------------
+@context: https://www.w3.org/ns/did/v1
+id: did:telco:airtel
+publicKey:
+  id: did:telco:airtel#key-1
+  type: Ed25519VerificationKey2018
+  controller: did:telco:airtel
+  publicKeyJwk.x: <base64url(pubkey)>
+end note
+
+note over I
+Verifiable Credential (VC)
+--------------------------
+@context: https://www.w3.org/2018/credentials/v1
+id: did:telco:airtel:vc1234
+type: ["VerifiableCredential", "SubscriberCredential"]
+issuer: did:telco:airtel
+credentialSubject:
+  id: did:telco:harishm
+  name: Harish M
+  operator: Airtel
+  circle: Karnataka
+proof:
+  type: JsonWebSignature2020
+  created: 2025-11-07T10:00:00Z
+  proofPurpose: assertionMethod
+  verificationMethod: did:telco:airtel#key-1
+  jws: <base64url(signature)>
+end note
+
+note over H
+Verifiable Presentation (VP)
+----------------------------
+@context: https://www.w3.org/2018/credentials/v1
+type: ["VerifiablePresentation"]
+verifiableCredential: (reference to VC)
+holder: did:telco:harishm
+proof:
+  type: JsonWebSignature2020
+  created: 2025-11-07T10:05:00Z
+  proofPurpose: authentication
+  verificationMethod: did:telco:harishm#key-1
+  domain: did:telco:verifier
+  nonce: <random_nonce>
+  jws: <base64url(holder_signature)>
+end note
+
+@enduml

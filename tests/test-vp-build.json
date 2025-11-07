@@ -1,0 +1,7 @@
+{
+  "vc_ids": ["vc:did:telco:harism:uuid8"],
+  "reveal_fields": {
+    "vc:did:telco:harism:uuid8": ["name", "operator", "circle", "lastKnownLocation", "ageOver18"]
+  },
+  "nonce": "nonce-telecom-auth-002"
+}

@@ -1,0 +1,38 @@
+@startuml
+title Crypto Summary - Keys, Signing and Verification
+
+participant Issuer as I
+participant Holder as H
+participant Verifier as V
+
+I -> I : Generate Ed25519 key pair
+I -> I : Store private key securely
+I -> I : Publish public key in DID Document
+
+H -> H : Generate own Ed25519 key pair
+H -> H : Sign Verifiable Presentation using private key
+
+V -> V : Resolve DID Documents
+V -> V : Verify VC and VP signatures using public keys
+
+note right of I
+Issuer Operations:
+- Generates Ed25519 key pair
+- Signs Verifiable Credential (VC)
+- Publishes public key in DID Document
+end note
+
+note right of H
+Holder Operations:
+- Generates Ed25519 key pair
+- Signs Verifiable Presentation (VP)
+- Reveals selected claims only
+end note
+
+note right of V
+Verifier Operations:
+- Resolves DID Documents
+- Verifies VC and VP signatures using public keys
+end note
+
+@enduml
