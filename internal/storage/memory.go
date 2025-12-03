@@ -26,6 +26,7 @@ func (m *MemoryStore) Save(key string, value any) error {
 
 	// Check for empty key is a good practice, though not strictly necessary
 	if key == "" {
+		logError("Key(%s) to save is empty", key)
 		return fmt.Errorf("key cannot be empty")
 	}
 
